@@ -1,0 +1,78 @@
+
+services:
+  db_Alumnos:
+    image: mysql:latest
+    container_name: db_Alumnos
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: alumnos
+      MYSQL_USER: gabrielcabrera
+      MYSQL_PASSWORD: 123itm
+    ports:
+      - "3308:3306"
+    volumes:
+      - db_data_alumnos:/var/lib/mysql
+      - ./alumnos.sql:/docker-entrypoint-initdb.d/alumnos.sql
+    networks:
+      - app_network
+
+  db_Maestros:
+    image: mysql:latest
+    container_name: db_Maestros
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: maestros
+      MYSQL_USER: gabrielcabrera
+      MYSQL_PASSWORD: 123itm
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data_maestros:/var/lib/mysql
+      - ./maestros.sql:/docker-entrypoint-initdb.d/maestros.sql
+    networks:
+      - app_network
+
+  appmaestros:
+    build:
+      context: .
+      dockerfile: dockerfile_maestros
+    container_name: appmaestros
+    environment:
+      DB_HOST: db_Maestros
+      DB_NAME: maestros
+      DB_USER: gabrielcabrera
+      DB_PASSWORD: 123itm
+      API_ALUMNO: appalumnos
+    volumes:
+     - ./maestros.php:/var/www/html/maestros.php
+    ports:
+      - "8081:80"
+    networks:
+      - app_network
+
+  appalumnos:
+    build:
+      context: .
+      dockerfile: dockerfile_alumnos.yaml
+    container_name: appalumnos
+    environment:
+      DB_HOST: db_Alumnos
+      DB_NAME: alumnos
+      DB_USER: gabrielcabrera
+      DB_PASSWORD: 123itm
+    volumes:
+      - ./alumnos.php:/var/www/html/alumnos.php
+    ports:
+      - "8084:80"
+    networks:
+      - app_network
+
+volumes:
+  db_data_alumnos:
+  db_data_maestros:
+
+networks:
+  app_network:
+    driver: bridge
+
+

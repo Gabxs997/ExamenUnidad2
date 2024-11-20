@@ -1,0 +1,13 @@
+FROM php:8.2-apache
+
+# Instalar la extensión mysqli para poder conectar a MySQL
+RUN docker-php-ext-install mysqli
+
+# Corregir permisos para que Apache pueda acceder a los archivos
+RUN chown -R www-data:www-data /var/www/html
+
+# Copiar el archivo PHP al directorio de Apache
+COPY alumnos.php /var/www/html/index.php
+
+# Asegúrate de que Apache esté habilitado y corriendo
+RUN a2enmod rewrite
